@@ -63,7 +63,8 @@ final class WebMvcTelemetryProducingFilter extends OncePerRequestFilter implemen
     AsyncAwareHttpServletRequest asyncAwareRequest =
         new AsyncAwareHttpServletRequest(request, response, context);
     Throwable error = null;
-    try (Scope ignored = context.makeCurrent()) {
+    try (Scope ignored =
+        context.with(WebMvcRouteInterceptor.SERVER_CONTEXT, context).makeCurrent()) {
       filterChain.doFilter(asyncAwareRequest, response);
     } catch (Throwable t) {
       error = t;

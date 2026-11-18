@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * This class is internal and is hence not for public use. Its APIs are unstable and can change at
@@ -31,5 +32,10 @@ public class SpringWebMvc5InstrumentationAutoConfiguration {
             SpringWebMvcTelemetry.builder(openTelemetry), openTelemetry)
         .build()
         .createServletFilter();
+  }
+
+  @Bean
+  WebMvcConfigurer otelWebMvcConfigurer() {
+    return SpringWebMvcTelemetry.createWebMvcConfigurer();
   }
 }
