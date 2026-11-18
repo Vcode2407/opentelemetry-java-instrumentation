@@ -68,7 +68,9 @@ by the Spring servlet container.
 
 ##### Usage in Spring Boot
 
-Spring Boot allows servlet `Filter`s to be registered as beans:
+If you are not using the OpenTelemetry Spring Boot starter, register the filter and MVC configurer
+as beans. The filter creates the server span. The MVC configurer records the matched route,
+including functional routes.
 
 ```java
 import io.opentelemetry.api.OpenTelemetry;
@@ -76,6 +78,7 @@ import io.opentelemetry.instrumentation.spring.webmvc.v5_3.SpringWebMvcTelemetry
 import javax.servlet.Filter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class SpringWebMvcTelemetryConfiguration {
@@ -83,6 +86,11 @@ public class SpringWebMvcTelemetryConfiguration {
    @Bean
    public Filter telemetryFilter(OpenTelemetry openTelemetry) {
       return SpringWebMvcTelemetry.create(openTelemetry).createServletFilter();
+   }
+
+   @Bean
+   public WebMvcConfigurer telemetryRouteConfigurer() {
+      return SpringWebMvcTelemetry.createWebMvcConfigurer();
    }
 }
 ```

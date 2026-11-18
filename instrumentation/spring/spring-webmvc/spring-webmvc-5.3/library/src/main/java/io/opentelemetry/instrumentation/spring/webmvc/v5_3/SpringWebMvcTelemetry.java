@@ -10,6 +10,9 @@ import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.core.Ordered;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /** Entrypoint for instrumenting Spring Web MVC apps. */
 public final class SpringWebMvcTelemetry {
@@ -32,5 +35,19 @@ public final class SpringWebMvcTelemetry {
   /** Returns a {@link Filter} that instruments HTTP requests. */
   public Filter createServletFilter() {
     return new WebMvcTelemetryProducingFilter(instrumenter);
+  }
+
+  /**
+   * Returns a {@link WebMvcConfigurer} that records the matched MVC route on the server span
+   * started by {@link #createServletFilter()}. Register it with the application's MVC
+   * configuration, alongside the servlet filter.
+   */
+  public static WebMvcConfigurer createWebMvcConfigurer() {
+    return new WebMvcConfigurer() {
+      @Override
+      public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new WebMvcRouteInterceptor()).order(Ordered.HIGHEST_PRECEDENCE);
+      }
+    };
   }
 }

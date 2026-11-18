@@ -49,7 +49,7 @@ final class HttpRouteSupport {
     }
   }
 
-  boolean hasMappings() {
+  private boolean hasMappings() {
     if (contextRefreshTriggered.compareAndSet(true, false)) {
       // reload the handler mappings only if the web app context was recently refreshed
       DispatcherServlet dispatcherServlet = this.dispatcherServlet;
@@ -87,7 +87,7 @@ final class HttpRouteSupport {
 
   @Nullable
   String getHttpRoute(Context context, @Nullable HttpServletRequest request) {
-    if (request == null) {
+    if (request == null || !hasMappings()) {
       return null;
     }
     boolean parsePath = this.parseRequestPath;
@@ -139,7 +139,7 @@ final class HttpRouteSupport {
     return false;
   }
 
-  private static String prependContextPath(HttpServletRequest request, String route) {
+  static String prependContextPath(HttpServletRequest request, String route) {
     String contextPath = request.getContextPath();
     if (contextPath == null) {
       return route;
